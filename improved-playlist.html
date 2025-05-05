@@ -1,0 +1,548 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>철박이 음악 - 플레이리스트</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&display=swap');
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Noto Sans KR', sans-serif;
+    }
+
+    :root {
+      --primary: #2563eb;
+      --primary-light: #3b82f6;
+      --primary-dark: #1d4ed8;
+      --accent: #60a5fa;
+      --dark: #f8fafc;
+      --text-dark: #0f172a;
+      --text-light: #64748b;
+      --white: #ffffff;
+      --shadow: rgba(0, 0, 0, 0.05);
+      --danger: #ef4444;
+    }
+
+    body {
+      background-color: var(--dark);
+      color: var(--text-dark);
+      line-height: 1.6;
+      min-height: 100vh;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 20px;
+    }
+
+    .header {
+      text-align: center;
+      margin: 120px 0 80px;
+      position: relative;
+    }
+
+    .header::after {
+      content: "";
+      position: absolute;
+      width: 80px;
+      height: 4px;
+      background: var(--primary);
+      bottom: -30px;
+      left: 50%;
+      transform: translateX(-50%);
+      border-radius: 2px;
+    }
+
+    .main-title h1 {
+      font-size: 56px;
+      font-weight: 800;
+      line-height: 1.2;
+      margin-bottom: 20px;
+      background: linear-gradient(135deg, var(--primary-dark), var(--primary), var(--accent));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .description {
+      font-size: 18px;
+      color: var(--text-light);
+      max-width: 700px;
+      margin: 0 auto;
+    }
+
+    .music-section {
+      background: var(--white);
+      border-radius: 24px;
+      padding: 50px;
+      box-shadow: 0 20px 40px var(--shadow);
+      margin-bottom: 80px;
+    }
+
+    .section-heading {
+      font-size: 32px;
+      font-weight: 700;
+      margin-bottom: 40px;
+      color: var(--primary);
+      text-align: center;
+    }
+
+    .music-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+      gap: 30px;
+    }
+
+    .music-card {
+      background: var(--white);
+      border-radius: 20px;
+      overflow: hidden;
+      box-shadow: 0 10px 20px var(--shadow);
+      transition: all 0.3s ease;
+      border: 1px solid rgba(0, 0, 0, 0.05);
+      display: flex;
+      flex-direction: column;
+      cursor: pointer;
+      position: relative;
+    }
+
+    .music-card:hover {
+      transform: translateY(-10px);
+      box-shadow: 0 15px 30px rgba(37, 99, 235, 0.15);
+      border-color: var(--accent);
+    }
+
+    .music-image {
+      width: 100%;
+      aspect-ratio: 1 / 1;
+      object-fit: cover;
+    }
+
+    .music-content {
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .music-title {
+      font-size: 18px;
+      font-weight: 700;
+      margin-bottom: 10px;
+    }
+
+    .music-artist {
+      color: var(--text-light);
+      font-size: 14px;
+      margin-bottom: 10px;
+    }
+
+    .music-genre {
+      background: rgba(37, 99, 235, 0.1);
+      color: var(--primary);
+      font-size: 12px;
+      padding: 5px 12px;
+      border-radius: 20px;
+      font-weight: 500;
+      margin-top: auto;
+      align-self: flex-start;
+    }
+
+    .footer {
+      text-align: center;
+      color: var(--text-light);
+      padding: 60px 0 40px;
+    }
+
+    .overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      backdrop-filter: blur(5px);
+      background: rgba(0, 0, 0, 0.3);
+      display: none;
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+      animation: fadeIn 0.3s ease;
+    }
+
+    .popup {
+      background: white;
+      padding: 30px;
+      border-radius: 16px;
+      text-align: center;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+      animation: slideUp 0.3s ease;
+      max-width: 90%;
+    }
+
+    .popup h3 {
+      margin-bottom: 20px;
+      font-size: 20px;
+    }
+
+    .popup button {
+      margin: 0 10px;
+      padding: 8px 16px;
+      border: none;
+      border-radius: 8px;
+      background: var(--primary);
+      color: white;
+      font-weight: 600;
+      cursor: pointer;
+      transition: 0.2s;
+    }
+
+    .popup button.cancel {
+      background: #ccc;
+      color: #333;
+    }
+
+    .popup button.delete {
+      background: var(--danger);
+    }
+
+    #add-song-btn {
+      position: fixed;
+      bottom: 30px;
+      right: 30px;
+      background: var(--primary);
+      color: white;
+      border: none;
+      padding: 12px 18px;
+      font-size: 16px;
+      border-radius: 10px;
+      cursor: pointer;
+      z-index: 1001;
+    }
+
+    .popup input {
+      margin-bottom: 10px;
+      width: 100%;
+      padding: 10px;
+      border-radius: 6px;
+      border: 1px solid #ddd;
+    }
+
+    .delete-btn {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      background: var(--danger);
+      color: white;
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      display: none;
+      justify-content: center;
+      align-items: center;
+      font-weight: bold;
+      font-size: 14px;
+      border: none;
+      cursor: pointer;
+      z-index: 10;
+    }
+
+    .music-card.user-added:hover .delete-btn {
+      display: flex;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    @keyframes slideUp {
+      from { transform: translateY(30px); opacity: 0; }
+      to { transform: translateY(0); opacity: 1; }
+    }
+
+    @media (max-width: 768px) {
+      .main-title h1 {
+        font-size: 36px;
+      }
+
+      .description {
+        font-size: 16px;
+        padding: 0 10px;
+      }
+
+      .music-section {
+        padding: 30px 20px;
+      }
+
+      .music-grid {
+        grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+        gap: 20px;
+      }
+
+      .music-title {
+        font-size: 16px;
+      }
+
+      .music-artist {
+        font-size: 13px;
+      }
+
+      .section-heading {
+        font-size: 24px;
+      }
+
+      .delete-btn {
+        display: flex; /* 모바일에서는 항상 표시 */
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <div class="main-title">
+        <h1>철박이 플레이리스트</h1>
+      </div>
+      <p class="description">철박이의 플레이리스트!! 다양한 장르의 음악을 감상하고 즐겨보세요!</p>
+    </div>
+
+    <div class="music-section">
+      <h2 class="section-heading">플레이리스트</h2>
+      <div class="music-grid">
+        <!-- 기본 노래들 -->
+        <div class="music-card" data-link="https://youtu.be/1JZk8V95PI8">
+          <img class="music-image" src="https://i.imgur.com/EnQ3kQo.png" alt="SUPADOPA">
+          <div class="music-content">
+            <h3 class="music-title">SUPADOPA</h3>
+            <p class="music-artist">아야츠노 유니</p>
+            <span class="music-genre">팝</span>
+          </div>
+        </div>
+        <div class="music-card" data-link="https://youtu.be/11cta61wi0g">
+          <img class="music-image" src="https://i.imgur.com/thB8YKo.png" alt="Hype Boy">
+          <div class="music-content">
+            <h3 class="music-title">Hype Boy</h3>
+            <p class="music-artist">뉴진스</p>
+            <span class="music-genre">K-팝</span>
+          </div>
+        </div>
+        <div class="music-card" data-link="https://www.youtube.com/watch?v=nSDgHBxUbVQ">
+          <img class="music-image" src="https://i.imgur.com/cR5Oalg.png" alt="Photograph">
+          <div class="music-content">
+            <h3 class="music-title">Photograph</h3>
+            <p class="music-artist">Ed Sheeran</p>
+            <span class="music-genre">팝</span>
+          </div>
+        </div>
+        <div class="music-card" data-link="https://youtu.be/73V3xrfiYMo">
+          <img class="music-image" src="https://i.imgur.com/ZOYiEhp.png" alt="사건의 지평선">
+          <div class="music-content">
+            <h3 class="music-title">사건의 지평선</h3>
+            <p class="music-artist">윤하</p>
+            <span class="music-genre">발라드</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <footer class="footer">
+      <p>철박이 음악 - 플레이리스트</p>
+    </footer>
+  </div>
+
+  <!-- 링크 확인용 팝업 -->
+  <div class="overlay" id="overlay">
+    <div class="popup">
+      <h3>이 링크로 이동할까요?</h3>
+      <button id="confirm">이동</button>
+      <button class="cancel" id="cancel">취소</button>
+    </div>
+  </div>
+
+  <!-- 노래 삭제 확인 팝업 -->
+  <div class="overlay" id="delete-overlay">
+    <div class="popup">
+      <h3>이 노래를 삭제하시겠습니까?</h3>
+      <button class="delete" id="confirm-delete">삭제</button>
+      <button class="cancel" id="cancel-delete">취소</button>
+    </div>
+  </div>
+
+  <!-- 노래 추가 팝업 -->
+  <button id="add-song-btn">노래 추가</button>
+  <div class="overlay" id="song-form-overlay">
+    <div class="popup" style="max-width: 400px;">
+      <h3>노래 추가하기</h3>
+      <input id="song-title" placeholder="제목" />
+      <input id="song-artist" placeholder="아티스트" />
+      <input id="song-genre" placeholder="장르 (예: 팝, 발라드)" />
+      <input id="song-img" placeholder="이미지 링크" />
+      <input id="song-link" placeholder="유튜브 링크" />
+      <button id="save-song">저장</button>
+      <button class="cancel" id="close-song-form">취소</button>
+    </div>
+  </div>
+
+  <script>
+    const cards = document.querySelectorAll('.music-card');
+    const overlay = document.getElementById('overlay');
+    const confirmBtn = document.getElementById('confirm');
+    const cancelBtn = document.getElementById('cancel');
+    let targetLink = '';
+
+    cards.forEach(card => {
+      card.addEventListener('click', (e) => {
+        // 삭제 버튼 클릭시 이벤트 버블링 방지
+        if (e.target.classList.contains('delete-btn')) {
+          return;
+        }
+        targetLink = card.getAttribute('data-link');
+        overlay.style.display = 'flex';
+      });
+    });
+
+    confirmBtn.addEventListener('click', () => {
+      window.open(targetLink, '_blank');
+      overlay.style.display = 'none';
+    });
+
+    cancelBtn.addEventListener('click', () => {
+      overlay.style.display = 'none';
+      targetLink = '';
+    });
+
+    // 노래 추가 기능
+    const musicGrid = document.querySelector('.music-grid');
+    const addSongBtn = document.getElementById('add-song-btn');
+    const songFormOverlay = document.getElementById('song-form-overlay');
+    const closeSongForm = document.getElementById('close-song-form');
+    const saveSong = document.getElementById('save-song');
+
+    const titleInput = document.getElementById('song-title');
+    const artistInput = document.getElementById('song-artist');
+    const genreInput = document.getElementById('song-genre');
+    const imgInput = document.getElementById('song-img');
+    const linkInput = document.getElementById('song-link');
+
+    let userSongs = JSON.parse(localStorage.getItem('userSongs') || '[]');
+
+    // 삭제 기능 관련 변수들
+    const deleteOverlay = document.getElementById('delete-overlay');
+    const confirmDelete = document.getElementById('confirm-delete');
+    const cancelDelete = document.getElementById('cancel-delete');
+    let songToDelete = null;
+
+    function createMusicCard(song, index) {
+      const card = document.createElement('div');
+      card.className = 'music-card user-added';
+      card.setAttribute('data-link', song.link);
+      card.setAttribute('data-index', index);
+
+      // 삭제 버튼 추가
+      const deleteBtn = document.createElement('button');
+      deleteBtn.className = 'delete-btn';
+      deleteBtn.innerHTML = 'X';
+      deleteBtn.addEventListener('click', (e) => {
+        e.stopPropagation(); // 카드 클릭 이벤트 방지
+        songToDelete = card;
+        deleteOverlay.style.display = 'flex';
+      });
+
+      card.innerHTML = `
+        <img class="music-image" src="${song.image}" alt="${song.title}">
+        <div class="music-content">
+          <h3 class="music-title">${song.title}</h3>
+          <p class="music-artist">${song.artist}</p>
+          <span class="music-genre">${song.genre}</span>
+        </div>
+      `;
+
+      card.appendChild(deleteBtn);
+
+      card.addEventListener('click', (e) => {
+        if (e.target !== deleteBtn) {
+          targetLink = card.getAttribute('data-link');
+          overlay.style.display = 'flex';
+        }
+      });
+      
+      musicGrid.appendChild(card);
+      return card;
+    }
+
+    // 삭제 확인 버튼 이벤트
+    confirmDelete.addEventListener('click', () => {
+      if (songToDelete) {
+        const index = parseInt(songToDelete.getAttribute('data-index'));
+        userSongs.splice(index, 1);
+        localStorage.setItem('userSongs', JSON.stringify(userSongs));
+        
+        // 화면에서 삭제
+        songToDelete.remove();
+        songToDelete = null;
+        
+        // 삭제 후 남은 카드들의 인덱스 업데이트
+        updateCardIndices();
+        
+        deleteOverlay.style.display = 'none';
+      }
+    });
+
+    // 삭제 취소 버튼 이벤트
+    cancelDelete.addEventListener('click', () => {
+      songToDelete = null;
+      deleteOverlay.style.display = 'none';
+    });
+
+    // 카드 인덱스 업데이트 함수
+    function updateCardIndices() {
+      const userCards = document.querySelectorAll('.music-card.user-added');
+      userCards.forEach((card, idx) => {
+        card.setAttribute('data-index', idx);
+      });
+    }
+
+    // 기존 추가 노래 불러오기
+    userSongs.forEach((song, index) => createMusicCard(song, index));
+
+    addSongBtn.addEventListener('click', () => {
+      songFormOverlay.style.display = 'flex';
+    });
+
+    closeSongForm.addEventListener('click', () => {
+      songFormOverlay.style.display = 'none';
+    });
+
+    saveSong.addEventListener('click', () => {
+      const song = {
+        title: titleInput.value.trim(),
+        artist: artistInput.value.trim(),
+        genre: genreInput.value.trim(),
+        image: imgInput.value.trim(),
+        link: linkInput.value.trim()
+      };
+
+      if (!song.title || !song.artist || !song.genre || !song.image || !song.link) {
+        alert("모든 칸을 입력해주세요!");
+        return;
+      }
+
+      userSongs.push(song);
+      localStorage.setItem('userSongs', JSON.stringify(userSongs));
+      createMusicCard(song, userSongs.length - 1);
+      songFormOverlay.style.display = 'none';
+
+      // 입력 초기화
+      titleInput.value = '';
+      artistInput.value = '';
+      genreInput.value = '';
+      imgInput.value = '';
+      linkInput.value = '';
+    });
+  </script>
+</body>
+</html>
